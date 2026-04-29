@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wilson Ecaat — Builder of What Shouldn't Exist Yet</title>
+<meta name="description" content="CEO Sisi Labs Ltd. Creator of PAME, SafeRoad UG, Smart Business Book, and Stenos. Building civilisation infrastructure from Uganda.">
+<meta property="og:title" content="Wilson Ecaat — Builder of What Shouldn't Exist Yet">
+<meta property="og:description" content="CEO Sisi Labs Ltd. Creator of PAME, SafeRoad UG, Smart Business Book, and Stenos. Building civilisation infrastructure from Uganda.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wilsonecaat.com">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90' fill='%236366f1'%3EW%3C/text%3E%3C/svg%3E">
+<style>
+/* ===== RESET & BASE ===== */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  font-family:'Space Grotesk',sans-serif;
+  background:#000000;
+  color:#f0f0ff;
+  min-height:100vh;
+  overflow-x:hidden;
+  line-height:1.6;
+  cursor:none;
+  transition:background-color 2s ease;
+}
+body:not(.loaded) #site-content{display:none}
+body.loaded #site-content{display:block}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+ul{list-style:none}
+/* ===== FONTS ===== */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+/* ===== CUSTOM CURSOR ===== */
+#cursor-outer{
+  position:fixed;top:0;left:0;width:32px;height:32px;
+  border:1px solid rgba(99,102,241,0.6);border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transition:width 0.2s,height 0.2s,border-color 0.2s,transform 0.12s;
+  transform:translate(-50%,-50%);
+  mix-blend-mode:normal;
+}
+#cursor-inner{
+  position:fixed;top:0;left:0;width:6px;height:6px;
+  background:#6366f1;border-radius:50%;
+  pointer-events:none;z-index:99999;
+  transform:translate(-50%,-50%);
+  transition:transform 0.05s;
+}
+@media (hover:none),(pointer:coarse){body{cursor:auto}#cursor-outer,#cursor-inner{display:none}}
+
+/* ===== LOADING SCREEN ===== */
+#loading-screen{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:#000;z-index:99998;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:transform 0.6s cubic-bezier(0.77,0,0.18,1);
+  transform:translateY(0);
+}
+#loading-screen.hidden{transform:translateY(-100%)}
+#loading-scan{
+  position:absolute;top:0;left:0;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,#6366f1,transparent);
+  animation:scanLine 3s linear forwards;
+}
+@keyframes scanLine{0%{top:0}100%{top:100%}}
+#loading-text{
+  font-family:'Space Mono',monospace;font-size:1.2rem;
+  color:#6366f1;letter-spacing:0.2em;margin-bottom:1rem;
+}
+#loading-percent{
+  font-family:'Space Mono',monospace;font-size:2rem;
+  color:#f0f0ff;letter-spacing:0.1em;
+}
+
+/* ===== CANVAS ===== */
+#particle-canvas{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;pointer-events:none;
+}
+
+/* ===== GLASS CARD ===== */
+.glass-card{
+  background:rgba(255,255,255,0.03);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:20px;
+  box-shadow:0 0 40px rgba(99,102,241,0.06),inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* ===== HOLOGRAPHIC TEXT ===== */
+.holo-text{
+  background:linear-gradient(90deg,#6366f1,#00d4ff,#00ff88,#f59e0b,#c084fc,#6366f1);
+  background-size:300% 100%;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:holoshimmer 4s linear infinite;
+}
+@keyframes holoshimmer{0%{background-position:0%}100%{background-position:300%}}
+
+/* ===== GLITCH ===== */
+.glitch-wrapper{position:relative;display:inline-block}
+.glitch-wrapper::before,.glitch-wrapper::after{
+  content:attr(data-text);
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  opacity:0;pointer-events:none;
+}
+.glitch-wrapper.glitch-active::before{
+  opacity:0.8;color:#00d4ff;
+  clip-path:inset(20% 0 60% 0);
+  transform:translate(-4px,0);
+  animation:glitchMove 0.3s linear;
+}
+.glitch-wrapper.glitch-active::after{
+  opacity:0.8;color:#ff4d4d;
+  clip-path:inset(60% 0 20% 0);
+  transform:translate(4px,0);
+  animation:glitchMove 0.3s linear;
+}
+@keyframes glitchMove{0%{transform:translate(0)}20%{transform:translate(-2px,1px)}40%{transform:translate(2px,-1px)}60%{transform:translate(-1px,2px)}80%{transform:translate(1px,-2px)}100%{transform:translate(0)}}
+
+/* ===== SCROLL REVEAL ===== */
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 0.7s ease-out,transform 0.7s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* ===== MAGNETIC BUTTON ===== */
+.magnetic-btn{
+  position:relative;display:inline-flex;align-items:center;gap:0.5rem;
+  padding:0.75rem 1.5rem;border-radius:50px;
+  font-family:'Space Grotesk',sans-serif;font-weight:500;
+  cursor:pointer;border:none;outline:none;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.3s;
+  will-change:transform;
+}
+.magnetic-btn .btn-text{
+  display:inline-block;
+  transition:transform 0.4s cubic-bezier(0.34,1.56,0.64,1);
+  will-change:transform;
+}
+.magnetic-btn.primary-cta{
+  background:linear-gradient(135deg,#6366f1,#00d4ff);
+  color:#fff;font-weight:600;
+  box-shadow:0 0 30px rgba(99,102,241,0.3);
+}
+.magnetic-btn.primary-cta:hover{box-shadow:0 0 50px rgba(99,102,241,0.5)}
+.magnetic-btn.secondary-cta{
+  background:transparent;border:1px solid rgba(255,255,255,0.2);color:#f0f0ff;
+}
+.magnetic-btn.secondary-cta:hover{border-color:#6366f1;color:#6366f1}
+
+/* ===== NAV ===== */
+#main-nav{
+  position:fixed;top:0;left:0;width:100%;z-index:9999;
+  padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;
+  transition:background 0.3s,backdrop-filter 0.3s,border-bottom 0.3s;
+  background:transparent;
+}
+#main-nav.scrolled{
+  background:rgba(0,0,0,0.8);backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.nav-logo{font-size:1.8rem;font-weight:700;letter-spacing:-0.02em}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{
+  font-family:'Space Mono',monospace;font-size:0.75rem;
+  color:#7a7a9a;text-transform:uppercase;letter-spacing:0.1em;
+  position:relative;transition:color 0.3s;
+}
+.nav-links a::after{
+  content:'';position:absolute;bottom:-4px;left:0;width:0;height:2px;
+  background:#6366f1;transition:width 0.3s;
+}
+.nav-links a.active{color:#f0f0ff}
+.nav-links a.active::after{width:100%}
+.nav-links a:hover{color:#f0f0ff}
+.nav-cta{font-family:'Space Mono',monospace;font-size:0.7rem;padding:0.5rem 1.2rem}
+.hamburger{display:none;font-family:'Space Mono',monospace;font-size:1.5rem;color:#f0f0ff;background:none;border:none;cursor:pointer}
+@media(max-width:768px){
+  .nav-links{display:none}
+  .hamburger{display:block}
+  .nav-links.open{display:flex;flex-direction:column;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);backdrop-filter:blur(30px);justify-content:center;align-items:center;gap:2.5rem;z-index:9998}
+  .nav-links.open a{font-size:1.2rem}
+  .nav-links.open .nav-cta{font-size:0.9rem}
+  #main-nav{padding:1rem}
+}
+
+/* ===== HERO ===== */
+#hero{
+  position:relative;z-index:1;min-height:100vh;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  text-align:center;padding:6rem 2rem 2rem;
+}
+.hero-content{position:relative;z-index:2;max-width:900px}
+.hero-name{font-size:clamp(64px,12vw,120px);font-weight:700;line-height:1;margin-bottom:1rem}
+.hero-tagline{
+  font-family:'Space Mono',monospace;font-size:clamp(14px,2vw,18px);
+  color:#00d4ff;min-height:2em;margin-bottom:2rem;
+}
+.hero-tagline .cursor-blink{animation:blink 0.8s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-buttons{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;margin-bottom:3rem}
+.hero-bottom{
+  position:absolute;bottom:2rem;left:2rem;right:2rem;
+  display:flex;justify-content:space-between;align-items:flex-end;
+  font-family:'Space Mono',monospace;font-size:0.65rem;color:#7a7a9a;
+  text-transform:uppercase;letter-spacing:0.08em;
+}
+.hero-bottom .right{text-align:right}
+.scroll-indicator{
+  position:absolute;bottom:4rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:0.5rem;
+  font-family:'Space Mono',monospace;font-size:0.6rem;color:#7a7a9a;
+}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,#6366f1,transparent);position:relative;overflow:hidden}
+.scroll-dot{width:4px;height:4px;background:#6366f1;border-radius:50%;position:absolute;top:0;left:-1.5px;animation:scrollDot 2s ease-in-out infinite}
+@keyframes scrollDot{0%{top:0;opacity:1}100%{top:100%;opacity:0}}
+
+/* ===== MANIFESTO ===== */
+#manifesto{
+  position:relative;z-index:1;padding:6rem 2rem;max-width:900px;margin:0 auto;
+}
+#manifesto h2{font-size:clamp(28px,4vw,48px);margin-bottom:3rem}
+.manifesto-line{
+  font-size:clamp(28px,4vw,48px);font-weight:300;line-height:1.4;
+  margin-bottom:0.5rem;opacity:0;transform:translateY(30px);
+  transition:opacity 0.7s ease,transform 0.7s ease;
+}
+.manifesto-line.visible{opacity:1;transform:translateY(0)}
+.manifesto-line.indent{margin-left:clamp(20px,6vw,80px)}
+.manifesto-line.holo{font-weight:700;font-size:clamp(36px,5vw,60px)}
+
+/* ===== VENTURES ===== */
+#ventures{
+  position:relative;z-index:1;padding:6rem 2rem;max-width:1200px;margin:0 auto;
+}
+#ventures .section-label{
+  font-family:'Space Mono',monospace;font-size:0.7rem;color:#7a7a9a;
+  text-transform:uppercase;letter-spacing:0.15em;margin-bottom:0.5rem;
+}
+#ventures h2{font-size:clamp(32px,5vw,64px);margin-bottom:3rem}
+.ventures-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;
+}
+.venture-card{
+  padding:2rem;position:relative;overflow:hidden;
+  transition:box-shadow 0.3s,transform 0.5s ease,border-color 0.3s;
+  transform-style:preserve-3d;perspective:800px;
+  cursor:default;
+}
+.venture-card:hover{
+  box-shadow:0 0 40px var(--card-glow,rgba(99,102,241,0.15));
+  border-color:var(--card-color,#6366f1);
+}
+.venture-card .card-color-dot{
+  width:12px;height:12px;border-radius:50%;
+  background:var(--card-color);display:inline-block;margin-right:0.5rem;
+  vertical-align:middle;
+}
+.venture-card .card-url{
+  font-family:'Space Mono',monospace;font-size:0.65rem;color:#7a7a9a;
+  vertical-align:middle;
+}
+.venture-card h3{
+  font-size:clamp(20px,2.5vw,28px);font-weight:600;margin:1rem 0 0.5rem;
+  transition:color 0.3s;
+}
+.venture-card:hover h3{color:var(--card-color,#6366f1)}
+.venture-card p{color:#7a7a9a;font-size:0.9rem;line-height:1.6}
+.venture-card .card-link{
+  display:inline-block;margin-top:1rem;
+  font-family:'Space Mono',monospace;font-size:0.7rem;
+  color:var(--card-color,#6366f1);text-transform:uppercase;letter-spacing:0.08em;
+  transition:opacity 0.3s;
+}
+.venture-card .card-link:hover{opacity:0.8}
+.venture-card .specular-highlight{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  pointer-events:none;border-radius:20px;
+  opacity:0;transition:opacity 0.3s;
+  background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,0.08),transparent 60%);
+}
+.venture-card:hover .specular-highlight{opacity:1}
+@media(max-width:768px){.ventures-grid{grid-template-columns:1fr}}
+
+/* ===== SAFEROAD IMPACT ===== */
+#impact{
+  position:relative;z-index:1;padding:6rem 2rem;
+  background:rgba(255,77,77,0.03);border-top:1px solid rgba(255,77,77,0.1);
+  border-bottom:1px solid rgba(255,77,77,0.1);
+}
+.impact-inner{max-width:1000px;margin:0 auto}
+#impact h2{font-size:clamp(28px,4vw,48px);color:#ff4d4d;margin-bottom:0.5rem}
+#impact .sub{font-size:clamp(18px,2vw,24px);color:#7a7a9a;margin-bottom:2rem}
+.impact-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1.5rem;margin-bottom:2rem}
+.stat-box{
+  text-align:center;padding:2rem 1rem;
+}
+.stat-number{font-size:clamp(36px,5vw,64px);font-weight:700;color:#f0f0ff;font-family:'Space Mono',monospace}
+.stat-label{font-size:0.8rem;color:#7a7a9a;margin-top:0.3rem}
+.impact-desc{max-width:700px;margin:0 auto 2rem;color:#b0b0c0;line-height:1.8}
+.impact-desc p{margin-bottom:1rem}
+@media(max-width:768px){.impact-stats{grid-template-columns:1fr}}
+
+/* ===== AI SECTION ===== */
+#ai{
+  position:relative;z-index:1;padding:6rem 2rem;max-width:800px;margin:0 auto;text-align:center;
+}
+#ai h2{font-size:clamp(28px,4vw,48px);margin-bottom:0.5rem}
+#ai .sub{color:#7a7a9a;margin-bottom:1rem;font-size:1.1rem}
+#ai p{color:#7a7a9a;max-width:600px;margin:0 auto 2rem;line-height:1.7}
+.ai-widget-wrapper{
+  max-width:520px;margin:0 auto;padding:2rem;
+  border:1px solid rgba(99,102,241,0.3);
+  box-shadow:0 0 60px rgba(99,102,241,0.1);
+  min-height:80px;
+}
+
+/* ===== CLIENT WORK ===== */
+#work{
+  position:relative;z-index:1;padding:6rem 2rem;max-width:1000px;margin:0 auto;
+}
+#work h2{font-size:clamp(28px,4vw,48px);margin-bottom:0.5rem}
+#work .sub{color:#7a7a9a;margin-bottom:2rem}
+.work-grid{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;
+}
+.work-cell{
+  padding:1.5rem;text-align:center;
+  transition:border-color 0.3s,box-shadow 0.3s;
+  border:1px solid rgba(255,255,255,0.06);
+  border-radius:12px;
+}
+.work-cell:hover{border-color:#6366f1;box-shadow:0 0 20px rgba(99,102,241,0.1)}
+.work-cell .work-url{
+  font-family:'Space Mono',monospace;font-size:0.7rem;color:#6366f1;
+  word-break:break-all;transition:color 0.3s;
+}
+.work-cell:hover .work-url{color:#00d4ff}
+.work-cell .work-desc{
+  font-size:0.75rem;color:#7a7a9a;margin-top:0.3rem;
+}
+@media(max-width:768px){.work-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:480px){.work-grid{grid-template-columns:1fr}}
+
+/* ===== CONTACT / COMMAND CENTRE ===== */
+#contact{
+  position:relative;z-index:1;padding:6rem 2rem;max-width:1100px;margin:0 auto;
+}
+#contact h2{font-size:clamp(28px,5vw,56px);text-align:center;margin-bottom:0.5rem}
+#contact .sub{text-align:center;color:#7a7a9a;margin-bottom:3rem;font-size:1.1rem}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start}
+.contact-form{display:flex;flex-direction:column;gap:1rem}
+.contact-form label{font-family:'Space Mono',monospace;font-size:0.7rem;color:#7a7a9a;text-transform:uppercase;letter-spacing:0.08em}
+.contact-form input,.contact-form textarea{
+  background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:0.8rem 1rem;color:#f0f0ff;
+  font-family:'Space Grotesk',sans-serif;font-size:0.9rem;
+  outline:none;transition:border-color 0.3s;
+}
+.contact-form input:focus,.contact-form textarea:focus{border-color:#6366f1}
+.contact-form textarea{resize:vertical;min-height:100px}
+.toggle-chips{display:flex;flex-wrap:wrap;gap:0.5rem}
+.toggle-chip{
+  padding:0.4rem 1rem;border-radius:50px;border:1px solid rgba(255,255,255,0.1);
+  font-family:'Space Mono',monospace;font-size:0.65rem;color:#7a7a9a;
+  cursor:pointer;transition:all 0.3s;background:transparent;
+}
+.toggle-chip.active{background:#6366f1;color:#fff;border-color:#6366f1}
+.contact-direct{padding:2rem}
+.contact-direct .direct-item{margin-bottom:1rem}
+.contact-direct .direct-label{font-family:'Space Mono',monospace;font-size:0.65rem;color:#7a7a9a;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.2rem}
+.contact-direct a{color:#6366f1;transition:color 0.3s}
+.contact-direct a:hover{color:#00d4ff}
+.contact-direct .social-links{display:flex;gap:1rem;margin-top:1rem;flex-wrap:wrap}
+.contact-direct .social-links a{font-family:'Space Mono',monospace;font-size:0.7rem;color:#7a7a9a;padding:0.3rem 0.6rem;border:1px solid rgba(255,255,255,0.06);border-radius:8px;transition:all 0.3s}
+.contact-direct .social-links a:hover{color:#f0f0ff;border-color:#6366f1}
+.working-hours{font-size:0.7rem;color:#7a7a9a;margin-top:1.5rem;font-family:'Space Mono',monospace}
+@media(max-width:768px){.contact-grid{grid-template-columns:1fr}}
+
+/* ===== FOOTER ===== */
+#footer{
+  position:relative;z-index:1;padding:2rem;text-align:center;
+  font-family:'Space Mono',monospace;font-size:0.7rem;color:#7a7a9a;
+  border-top:1px solid rgba(255,255,255,0.05);
+}
+#footer a{color:#7a7a9a;transition:color 0.3s}
+#footer a:hover{background:linear-gradient(90deg,#6366f1,#00d4ff,#00ff88);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+
+/* ===== UTILITY ===== */
+.container{max-width:1200px;margin:0 auto;padding:0 2rem}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important}
+  .reveal{opacity:1!important;transform:none!important}
+  .manifesto-line{opacity:1!important;transform:none!important}
+  #loading-screen{display:none!important}
+  .scroll-indicator{display:none}
+}
+</style>
+</head>
+<body>
+<!-- LOADING SCREEN -->
+<div id="loading-screen">
+  <div id="loading-scan"></div>
+  <div id="loading-text"></div>
+  <div id="loading-percent">0%</div>
+</div>
+
+<!-- CUSTOM CURSOR -->
+<div id="cursor-outer"></div>
+<div id="cursor-inner"></div>
+
+<!-- PARTICLE CANVAS -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- MAIN CONTENT -->
+<div id="site-content">
+
+<!-- NAVIGATION -->
+<nav id="main-nav">
+  <div class="nav-logo holo-text">WE</div>
+  <button class="hamburger" id="hamburger-btn" aria-label="Toggle navigation menu">≡</button>
+  <div class="nav-links" id="nav-links">
+    <a href="#ventures" class="nav-link">Ventures</a>
+    <a href="#impact" class="nav-link">Impact</a>
+    <a href="#contact" class="nav-link">Contact</a>
+    <a href="mailto:partnership@wilsonecaat.com" class="magnetic-btn primary-cta nav-cta" aria-label="Partner with Wilson Ecaat"><span class="btn-text">Partner With Me →</span></a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-content">
+    <h1 class="hero-name holo-text glitch-wrapper" data-text="Wilson Ecaat">Wilson Ecaat</h1>
+    <div class="hero-tagline" id="tagline"><span id="tagline-text"></span><span class="cursor-blink">|</span></div>
+    <div class="hero-buttons">
+      <a href="#ventures" class="magnetic-btn secondary-cta" aria-label="Explore Wilson's work"><span class="btn-text">Explore My Work</span></a>
+      <a href="mailto:partnership@wilsonecaat.com" class="magnetic-btn primary-cta" aria-label="Let's build together"><span class="btn-text">Let's Build Together →</span></a>
+    </div>
+  </div>
+  <div class="hero-bottom">
+    <span>CEO · Sisi Labs Ltd · Kampala, Uganda</span>
+    <span class="right">6 companies · 3 countries · 1 mission</span>
+  </div>
+  <div class="scroll-indicator">
+    <span>SCROLL</span>
+    <div class="scroll-line"><div class="scroll-dot"></div></div>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section id="manifesto">
+  <h2 class="holo-text reveal">I BUILD WHAT SHOULDN'T EXIST YET</h2>
+  <div class="manifesto-line reveal">Africa doesn't need more apps.</div>
+  <div class="manifesto-line indent reveal" style="color:#00d4ff">It needs infrastructure.</div>
+  <div class="manifesto-line reveal">Systems that outlast political cycles.</div>
+  <div class="manifesto-line indent reveal" style="color:#00ff88">That work without electricity if they must.</div>
+  <div class="manifesto-line reveal">That save lives not just money.</div>
+  <div class="manifesto-line holo holo-text reveal">That's what I build.</div>
+</section>
+
+<!-- VENTURES -->
+<section id="ventures">
+  <div class="section-label reveal">THE PORTFOLIO</div>
+  <h2 class="reveal">Six Systems. One Vision.</h2>
+  <div class="ventures-grid">
+    <!-- Card 1: PAME -->
+    <div class="venture-card glass-card reveal" style="--card-color:#6366f1;--card-glow:rgba(99,102,241,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#6366f1"></span><span class="card-url">pame.cc</span></div>
+      <h3>PAME</h3>
+      <p>Personal AI Memory Engine — the AI that remembers everything, connects every thought, and becomes smarter the more you use it. Your second brain — permanently online, permanently yours.</p>
+      <a href="https://pame.cc" target="_blank" rel="noopener" class="card-link" aria-label="Visit PAME">Visit →</a>
+    </div>
+    <!-- Card 2: Sisi Labs -->
+    <div class="venture-card glass-card reveal" style="--card-color:#00d4ff;--card-glow:rgba(0,212,255,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#00d4ff"></span><span class="card-url">sisilabs.com</span></div>
+      <h3>Sisi Labs Ltd</h3>
+      <p>The laboratory where civilisation-grade technology is designed, engineered, and deployed. Parent company of all ventures below.</p>
+      <a href="https://sisilabs.com" target="_blank" rel="noopener" class="card-link" aria-label="Visit Sisi Labs">Visit →</a>
+    </div>
+    <!-- Card 3: SafeRoad UG -->
+    <div class="venture-card glass-card reveal" style="--card-color:#ff4d4d;--card-glow:rgba(255,77,77,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#ff4d4d"></span><span class="card-url">saferoad.co.ug</span></div>
+      <h3>SafeRoad UG</h3>
+      <p>Uganda loses 4,000 lives to road accidents every year. SafeRoad UG is the first unified, data-driven accountability layer connecting passengers, drivers, fleet owners, and government — making every road trip survivable.</p>
+      <a href="https://saferoad.co.ug" target="_blank" rel="noopener" class="card-link" aria-label="Visit SafeRoad UG">Visit →</a>
+    </div>
+    <!-- Card 4: SBB -->
+    <div class="venture-card glass-card reveal" style="--card-color:#00ff88;--card-glow:rgba(0,255,136,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#00ff88"></span><span class="card-url">sbb.finance</span></div>
+      <h3>Smart Business Book (SBB)</h3>
+      <p>The operating system for running a business in real-time. Sales, operations, teams, payments, and Kiongozi — all in one place. Stop stitching your business story from paper, chat, and scattered apps.</p>
+      <a href="https://sbb.finance" target="_blank" rel="noopener" class="card-link" aria-label="Visit Smart Business Book">Visit →</a>
+    </div>
+    <!-- Card 5: Stenos -->
+    <div class="venture-card glass-card reveal" style="--card-color:#f59e0b;--card-glow:rgba(245,158,11,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#f59e0b"></span><span class="card-url">stenos.pro</span></div>
+      <h3>Stenos</h3>
+      <p>A proof-based profile for real work, visible capability, and accountable credibility. Build a public portfolio from evidence-backed work, discover credible people, and grow into deeper accountability layers.</p>
+      <a href="https://stenos.pro" target="_blank" rel="noopener" class="card-link" aria-label="Visit Stenos">Visit →</a>
+    </div>
+    <!-- Card 6: Client Work -->
+    <div class="venture-card glass-card reveal" style="--card-color:#c084fc;--card-glow:rgba(192,132,252,0.2)" data-tilt>
+      <div class="specular-highlight"></div>
+      <div><span class="card-color-dot" style="background:#c084fc"></span><span class="card-url">client work</span></div>
+      <h3>Client Work Portfolio</h3>
+      <p>Designed and delivered digital presence for simonsharpproducts.com, ambrosolicreations.com, bunyonyiluxuryresort.com, einsteinrisingcanada.com and more. Every project built with the same rigour as the ventures above.</p>
+      <span class="card-link" style="cursor:default">Built with rigour</span>
+    </div>
+  </div>
+</section>
+
+<!-- SAFEROAD IMPACT -->
+<section id="impact">
+  <div class="impact-inner">
+    <h2 class="reveal">4,000 UGANDANS DIE ON ROADS EVERY YEAR</h2>
+    <p class="sub reveal">Most of them didn't have to.</p>
+    <div class="impact-stats reveal">
+      <div class="stat-box glass-card">
+        <div class="stat-number" id="counter-4000">0</div>
+        <div class="stat-label">Annual road deaths in Uganda</div>
+      </div>
+      <div class="stat-box glass-card">
+        <div class="stat-number">0</div>
+        <div class="stat-label">Existing driver accountability systems</div>
+      </div>
+      <div class="stat-box glass-card">
+        <div class="stat-number">1</div>
+        <div class="stat-label">Platform built to change this</div>
+      </div>
+    </div>
+    <div class="impact-desc reveal">
+      <p>SafeRoad UG is the first unified, data-driven accountability layer connecting passengers, drivers, fleet owners, and government — making every road trip survivable. Built for government-readiness. Operational without it.</p>
+      <p>Every day without this system costs lives. We're building the infrastructure that turns data into accountability, and accountability into saved lives.</p>
+    </div>
+    <div style="text-align:center">
+      <a href="mailto:partnership@wilsonecaat.com?subject=SafeRoad%20Partnership" class="magnetic-btn primary-cta" aria-label="Support SafeRoad UG"><span class="btn-text">Support SafeRoad UG →</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- PAME AI BRAIN -->
+<section id="ai">
+  <h2 class="holo-text reveal">ASK MY AI ANYTHING</h2>
+  <p class="sub reveal">My thinking, my frameworks, my experience — available 24/7 through PAME.</p>
+  <p class="reveal">This is Wilson's PAME clone — an AI trained on his actual knowledge and work. Ask it anything about his ventures, his thinking, or how to work with him.</p>
+  <div class="ai-widget-wrapper glass-card reveal" id="pame-widget-container">
+    <!-- PAME widget will be injected here -->
+  </div>
+</section>
+
+<!-- CLIENT WORK -->
+<section id="work">
+  <h2 class="reveal">WHAT I'VE SHIPPED FOR OTHERS</h2>
+  <p class="sub reveal">Built for clients. Held to the same standard as my own ventures.</p>
+  <div class="work-grid reveal">
+    <div class="work-cell glass-card">
+      <div class="work-url">simonsharpproducts.com</div>
+      <div class="work-desc">E-commerce product showcase</div>
+    </div>
+    <div class="work-cell glass-card">
+      <div class="work-url">ambrosolicreations.com</div>
+      <div class="work-desc">Creative agency portfolio</div>
+    </div>
+    <div class="work-cell glass-card">
+      <div class="work-url">bunyonyiluxuryresort.com</div>
+      <div class="work-desc">Luxury hospitality website</div>
+    </div>
+    <div class="work-cell glass-card">
+      <div class="work-url">einsteinrisingcanada.com</div>
+      <div class="work-desc">Educational platform</div>
+    </div>
+    <div class="work-cell glass-card">
+      <div class="work-url">Private Client A</div>
+      <div class="work-desc">FinTech Dashboard</div>
+    </div>
+    <div class="work-cell glass-card">
+      <div class="work-url">Private Client B</div>
+      <div class="work-desc">E-commerce Platform</div>
+    </div>
+  </div>
+</section>
+
+<!-- PARTNERSHIP CTA -->
+<section id="contact">
+  <h2 class="holo-text reveal">READY TO BUILD SOMETHING THAT MATTERS?</h2>
+  <p class="sub reveal">I'm not collecting business cards. I'm choosing who I build the next decade with.</p>
+  <div class="contact-grid reveal">
+    <div class="contact-form">
+      <label for="contact-name">Name</label>
+      <input type="text" id="contact-name" placeholder="Your full name">
+      <label for="contact-org">Organisation</label>
+      <input type="text" id="contact-org" placeholder="Your company or organisation">
+      <label>Type of opportunity</label>
+      <div class="toggle-chips" id="toggle-chips">
+        <span class="toggle-chip" data-value="Partnership">Partnership</span>
+        <span class="toggle-chip" data-value="Investment">Investment</span>
+        <span class="toggle-chip" data-value="Advisory">Advisory</span>
+        <span class="toggle-chip active" data-value="Client Work">Client Work</span>
+        <span class="toggle-chip" data-value="Other">Other</span>
+      </div>
+      <label for="contact-message">Message</label>
+      <textarea id="contact-message" placeholder="Tell me what you're building..." rows="4"></textarea>
+      <button class="magnetic-btn primary-cta" id="contact-submit" aria-label="Send proposal"><span class="btn-text">Send Proposal →</span></button>
+    </div>
+    <div class="contact-direct glass-card">
+      <h3 style="font-size:1.2rem;margin-bottom:1.5rem;font-weight:500">Or reach me directly</h3>
+      <div class="direct-item">
+        <div class="direct-label">Email</div>
+        <a href="mailto:info@wilsonecaat.com">info@wilsonecaat.com</a>
+      </div>
+      <div class="direct-item">
+        <div class="direct-label">Phone</div>
+        <a href="tel:+256700601950">+256 700 601 950</a>
+      </div>
+      <div class="direct-item">
+        <div class="direct-label">Partnerships</div>
+        <a href="mailto:partnership@wilsonecaat.com">partnership@wilsonecaat.com</a>
+      </div>
+      <div class="social-links">
+        <a href="https://sisilabs.com" target="_blank" rel="noopener" aria-label="Sisi Labs">sisilabs.com</a>
+        <a href="https://pame.cc" target="_blank" rel="noopener" aria-label="PAME">pame.cc</a>
+        <a href="#" aria-label="LinkedIn placeholder">linkedin</a>
+      </div>
+      <div class="working-hours">East Africa Time (UTC+3) · Usually online 07:00–23:00</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="footer">
+  © 2025 Wilson Ecaat · Sisi Labs Ltd · Built with <a href="https://pame.cc" target="_blank" rel="noopener">PAME</a> · Kampala, Uganda
+</footer>
+
+</div><!-- end site-content -->
+
+<!-- PAME WIDGET SCRIPT (injected dynamically) -->
+<script src="https://pame.cc/api/clone/widget.js" data-slug="wilson-ecaat" data-position="top-left" data-label="💬 Lets Talk" data-delay="0" data-theme="brand" defer></script>
+
+<script>
+(function(){
+'use strict';
+
+// ====== LOADING SCREEN ======
+const loadingScreen = document.getElementById('loading-screen');
+const loadingText = document.getElementById('loading-text');
+const loadingPercent = document.getElementById('loading-percent');
+const taglines = [
+  "I don't build products. I build infrastructure for how the world will work.",
+  "Systems that matter. Problems that kill. Solutions that endure.",
+  "Africa's future isn't waiting. Neither am I."
+];
+let currentTaglineIdx = 0;
+let charIdx = 0;
+let isDeleting = false;
+const taglineEl = document.getElementById('tagline-text');
+
+function typeTagline() {
+  const current = taglines[currentTaglineIdx];
+  if (!isDeleting) {
+    if (charIdx < current.length) {
+      charIdx++;
+      taglineEl.textContent = current.substring(0, charIdx);
+      setTimeout(typeTagline, 40);
+    } else {
+      setTimeout(() => { isDeleting = true; typeTagline(); }, 2500);
+    }
+  } else {
+    if (charIdx > 0) {
+      charIdx--;
+      taglineEl.textContent = current.substring(0, charIdx);
+      setTimeout(typeTagline, 20);
+    } else {
+      isDeleting = false;
+      currentTaglineIdx = (currentTaglineIdx + 1) % taglines.length;
+      setTimeout(typeTagline, 500);
+    }
+  }
+}
+
+function initLoading() {
+  const fullText = "INITIALISING WILSON ECAAT.SYS";
+  let idx = 0;
+  const typeInterval = setInterval(() => {
+    if (idx <= fullText.length) {
+      loadingText.textContent = fullText.substring(0, idx);
+      idx++;
+    } else {
+      clearInterval(typeInterval);
+    }
+  }, 60);
+
+  let percent = 0;
+  const percentInterval = setInterval(() => {
+    percent += Math.floor(Math.random() * 8) + 2;
+    if (percent > 100) percent = 100;
+    loadingPercent.textContent = percent + '%';
+    if (percent >= 100) {
+      clearInterval(percentInterval);
+      setTimeout(() => {
+        loadingScreen.classList.add('hidden');
+        document.body.classList.add('loaded');
+        // start tagline typing after load
+        setTimeout(typeTagline, 300);
+      }, 400);
+    }
+  }, 80);
+}
+
+document.addEventListener('DOMContentLoaded', initLoading);
+
+// ====== CUSTOM CURSOR ======
+const cursorOuter = document.getElementById('cursor-outer');
+const cursorInner = document.getElementById('cursor-inner');
+let mouseX = 0, mouseY = 0;
+let outerX = 0, outerY = 0;
+
+document.addEventListener('mousemove', (e) => {
+  mouseX = e.clientX;
+  mouseY = e.clientY;
+  cursorInner.style.left = mouseX + 'px';
+  cursorInner.style.top = mouseY + 'px';
+  // check if hovering over link/button
+  const target = e.target.closest('a, button, .magnetic-btn, .venture-card');
+  if (target) {
+    cursorOuter.style.width = '52px';
+    cursorOuter.style.height = '52px';
+    cursorOuter.style.borderColor = '#00d4ff';
+    cursorOuter.style.mixBlendMode = 'difference';
+  } else {
+    cursorOuter.style.width = '32px';
+    cursorOuter.style.height = '32px';
+    cursorOuter.style.borderColor = 'rgba(99,102,241,0.6)';
+    cursorOuter.style.mixBlendMode = 'normal';
+  }
+});
+
+function animateCursor() {
+  outerX += (mouseX - outerX) * 0.12;
+  outerY += (mouseY - outerY) * 0.12;
+  cursorOuter.style.left = outerX + 'px';
+  cursorOuter.style.top = outerY + 'px';
+  requestAnimationFrame(animateCursor);
+}
+animateCursor();
+
+// ====== PARTICLE CANVAS ======
+const canvas = document.getElementById('particle-canvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let animId;
+const PARTICLE_COUNT = 120;
+const CONNECT_DIST = 140;
+const REPEL_DIST = 180;
+const REPEL_STRENGTH = 0.5;
+
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+
+function initParticles() {
+  particles = [];
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      r: 1.5
+    });
+  }
+}
+
+function drawParticles() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Update positions
+  for (let p of particles) {
+    p.x += p.vx;
+    p.y += p.vy;
+    // Wrap edges
+    if (p.x < 0) p.x = canvas.width;
+    if (p.x > canvas.width) p.x = 0;
+    if (p.y < 0) p.y = canvas.height;
+    if (p.y > canvas.height) p.y = 0;
+    
+    // Repel from cursor
+    const dx = p.x - mouseX;
+    const dy = p.y - mouseY;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < REPEL_DIST && dist > 0) {
+      const force = (REPEL_DIST - dist) / REPEL_DIST * REPEL_STRENGTH;
+      p.vx += (dx / dist) * force * 0.1;
+      p.vy += (dy / dist) * force * 0.1;
+    }
+    
+    // Dampen velocity
+    p.vx *= 0.99;
+    p.vy *= 0.99;
+    
+    // Draw particle
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(99,102,241,0.5)';
+    ctx.fill();
+  }
+  
+  // Draw connections
+  for (let i = 0; i < particles.length; i++) {
+    for (let j = i + 1; j < particles.length; j++) {
+      const dx = particles[i].x - particles[j].x;
+      const dy = particles[i].y - particles[j].y;
+      const dist = Math.sqrt(dx*dx + dy*dy);
+      if (dist < CONNECT_DIST) {
+        const opacity = (1 - dist / CONNECT_DIST) * 0.4;
+        ctx.beginPath();
+        ctx.moveTo(particles[i].x, particles[i].y);
+        ctx.lineTo(particles[j].x, particles[j].y);
+        ctx.strokeStyle = `rgba(99,102,241,${opacity})`;
+        ctx.lineWidth = 0.6;
+        ctx.stroke();
+      }
+    }
+  }
+  
+  animId = requestAnimationFrame(drawParticles);
+}
+
+function startParticles() {
+  resizeCanvas();
+  initParticles();
+  drawParticles();
+}
+
+window.addEventListener('resize', () => {
+  resizeCanvas();
+  initParticles();
+});
+
+// Pause when tab not visible
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    cancelAnimationFrame(animId);
+  } else {
+    drawParticles();
+  }
+});
+
+startParticles();
+
+// ====== MAGNETIC BUTTONS ======
+document.querySelectorAll('.magnetic-btn').forEach(btn => {
+  const text = btn.querySelector('.btn-text');
+  btn.addEventListener('mousemove', (e) => {
+    const rect = btn.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const dist = Math.sqrt(dx*dx + dy*dy);
+    if (dist < 60) {
+      const maxX = 8, maxY = 6;
+      const px = (dx / 60) * maxX;
+      const py = (dy / 60) * maxY;
+      btn.style.transform = `translate(${px}px, ${py}px)`;
+      if (text) text.style.transform = `translate(${-px * 0.5}px, ${-py * 0.5}px)`;
+    }
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = 'translate(0,0)';
+    if (text) text.style.transform = 'translate(0,0)';
+  });
+});
+
+// ====== SCROLL REVEAL ======
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      // stagger children if any
+      const children = entry.target.querySelectorAll('.reveal');
+      children.forEach((child, idx) => {
+        setTimeout(() => child.classList.add('visible'), idx * 80);
+      });
+    }
+  });
+}, { threshold: 0.12 });
+
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ====== 3D CARD TILT ======
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  const highlight = card.querySelector('.specular-highlight');
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const mouseX = (x - centerX) / centerX;
+    const mouseY = (y - centerY) / centerY;
+    card.style.transform = `rotateX(${mouseY * -8}deg) rotateY(${mouseX * 8}deg)`;
+    if (highlight) {
+      highlight.style.setProperty('--mx', (x / rect.width * 100) + '%');
+      highlight.style.setProperty('--my', (y / rect.height * 100) + '%');
+    }
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'rotateX(0deg) rotateY(0deg)';
+  });
+});
+
+// ====== GLITCH EFFECT ======
+const glitchWrapper = document.querySelector('.glitch-wrapper');
+if (glitchWrapper) {
+  setInterval(() => {
+    glitchWrapper.classList.add('glitch-active');
+    setTimeout(() => glitchWrapper.classList.remove('glitch-active'), 300);
+  }, 6000);
+}
+
+// ====== COUNTER ANIMATION ======
+const counterEl = document.getElementById('counter-4000');
+let counterAnimated = false;
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting && !counterAnimated) {
+      counterAnimated = true;
+      const target = 4000;
+      const duration = 2000;
+      const start = performance.now();
+      function updateCounter(now) {
+        const elapsed = now - start;
+        const progress = Math.min(elapsed / duration, 1);
+        // easeOut
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const current = Math.floor(ease * target);
+        counterEl.textContent = current.toLocaleString();
+        if (progress < 1) requestAnimationFrame(updateCounter);
+        else counterEl.textContent = '4,000+';
+      }
+      requestAnimationFrame(updateCounter);
+    }
+  });
+}, { threshold: 0.3 });
+if (counterEl) counterObserver.observe(counterEl);
+
+// ====== SECTION AMBIENT COLOUR SHIFT ======
+const sections = [
+  { id: 'hero', color: '#000000' },
+  { id: 'ventures', color: '#050510' },
+  { id: 'impact', color: '#0a0303' },
+  { id: 'contact', color: '#020a0f' }
+];
+let currentBg = '#000000';
+
+function updateBg() {
+  let newColor = '#000000';
+  for (let s of sections) {
+    const el = document.getElementById(s.id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight * 0.5 && rect.bottom > 0) {
+        newColor = s.color;
+        break;
+      }
+    }
+  }
+  if (newColor !== currentBg) {
+    currentBg = newColor;
+    document.body.style.backgroundColor = currentBg;
+  }
+}
+
+window.addEventListener('scroll', updateBg);
+window.addEventListener('resize', updateBg);
+
+// ====== NAV SCROLL BEHAVIOUR ======
+const nav = document.getElementById('main-nav');
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 80) nav.classList.add('scrolled');
+  else nav.classList.remove('scrolled');
+  
+  // Active nav link
+  const links = document.querySelectorAll('.nav-link');
+  let activeId = '';
+  sections.forEach(s => {
+    const el = document.getElementById(s.id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < 200 && rect.bottom > 100) activeId = s.id;
+    }
+  });
+  links.forEach(link => {
+    link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+  });
+});
+
+// ====== HAMBURGER MENU ======
+const hamburger = document.getElementById('hamburger-btn');
+const navLinks = document.getElementById('nav-links');
+hamburger.addEventListener('click', () => {
+  navLinks.classList.toggle('open');
+  hamburger.textContent = navLinks.classList.contains('open') ? '✕' : '≡';
+});
+document.querySelectorAll('.nav-link').forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.classList.remove('open');
+    hamburger.textContent = '≡';
+  });
+});
+
+// ====== TOGGLE CHIPS ======
+document.querySelectorAll('.toggle-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.toggle-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+  });
+});
+
+// ====== CONTACT FORM SUBMIT ======
+document.getElementById('contact-submit').addEventListener('click', () => {
+  const name = document.getElementById('contact-name').value.trim();
+  const org = document.getElementById('contact-org').value.trim();
+  const message = document.getElementById('contact-message').value.trim();
+  const activeChip = document.querySelector('.toggle-chip.active');
+  const type = activeChip ? activeChip.dataset.value : 'General';
+  const subject = `[${type}] Partnership Proposal from ${name || 'Anonymous'}`;
+  const body = `${message}\n\n— ${name || 'Anonymous'} (${org || 'Organisation not specified'})`;
+  window.location.href = `mailto:partnership@wilsonecaat.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+});
+
+// ====== MANIFESTO STAGGER REVEAL ======
+const manifestoLines = document.querySelectorAll('.manifesto-line');
+const manifestoObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(manifestoLines).indexOf(entry.target);
+      setTimeout(() => entry.target.classList.add('visible'), idx * 120);
+    }
+  });
+}, { threshold: 0.2 });
+manifestoLines.forEach(line => manifestoObserver.observe(line));
+
+// ====== PAME WIDGET INJECTION ======
+// The widget script is already loaded via src attribute in the HTML.
+// We just need to ensure the container is ready.
+// The widget will attach itself to the DOM as a floating button.
+
+})();
+</script>
+</body>
+</html>
